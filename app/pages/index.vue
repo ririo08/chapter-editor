@@ -1,12 +1,169 @@
 <script setup lang="ts">
+import { vAutoAnimate } from '@formkit/auto-animate'
+
 const { version } = useVersion()
+const { formatDuration } = useDuration()
+const videoElement = ref<HTMLVideoElement | null>(null)
+const controls = useMediaControls(videoElement)
+const { playing, currentTime, volume } = controls
+
+const handleFileChange = (files: FileList): void => {
+  const file = files ? files[0] : null
+  if (file) {
+    const url = URL.createObjectURL(file)
+    if (videoElement.value) {
+      videoElement.value.src = url
+      volume.value = 0.5
+    }
+  }
+}
+
+const addAndSubTime = (time: number) => {
+  currentTime.value += time
+}
+
+const handlePause = (play: boolean) => {
+  playing.value = !play
+}
+
+type Chapter = {
+  time: string
+  title: string
+}
+const chapters: Ref<Chapter[]> = ref([
+  { time: '0:00', title: '' },
+])
+const addChapter = () => {
+  chapters.value.push({
+    time: formatDuration(currentTime.value),
+    title: '',
+  })
+}
+
+const clipboardText: Ref<string> = computed(() => {
+  return chapters.value.map(m => `${m.time} ${m.title}`).join('\n')
+})
+const { copy, copied } = useClipboard()
 </script>
 
 <template>
-  <div class="max-w-2xl m-auto">
-    <h1 class="text-2xl font-bold text-center my-2">YouTube Chapter Editor</h1>
+  <div class="max-w-6xl m-auto">
+    <h1 class="text-2xl font-bold text-center my-2">
+      Video Chapter Editor
+    </h1>
     <div class="text-right text-lg">
-      <a href="https://github.com/ririo08/chapter-editor/releases" target="_blank">ver {{ version }}</a>
+      <a
+        href="https://github.com/ririo08/chapter-editor/releases"
+        target="_blank"
+      >ver {{ version }}</a>
+    </div>
+
+    <UInput
+      type="file"
+      accept="video/*"
+      icon="i-heroicons-folder"
+      class="my-2"
+      @change="handleFileChange"
+    />
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <video
+          ref="videoElement"
+          controls
+          width="100%"
+        />
+        <div class="font-bold text-right">
+          {{ formatDuration(currentTime) }}
+        </div>
+        <div class="flex gap-2 justify-center mt-2">
+          <UButton
+            icon="heroicons:backward-solid"
+            @click="addAndSubTime(-10)"
+          >
+            10s
+          </UButton>
+          <UButton
+            icon="heroicons:backward-solid"
+            @click="addAndSubTime(-5)"
+          >
+            5s
+          </UButton>
+          <UButton
+            icon="heroicons:backward-solid"
+            @click="addAndSubTime(-1)"
+          >
+            1s
+          </UButton>
+          <UButton
+            :icon="playing ? 'heroicons:pause-20-solid' : 'heroicons:play-solid'"
+            @click="handlePause(playing)"
+          />
+          <UButton
+            icon="heroicons:forward-solid"
+            @click="addAndSubTime(1)"
+          >
+            1s
+          </UButton>
+          <UButton
+            icon="heroicons:forward-solid"
+            @click="addAndSubTime(5)"
+          >
+            5s
+          </UButton>
+          <UButton
+            icon="heroicons:forward-solid"
+            @click="addAndSubTime(10)"
+          >
+            10s
+          </UButton>
+        </div>
+        <div class="flex justify-center mt-2">
+          <UButton
+            icon="heroicons:plus"
+            @click="addChapter"
+          >
+            Add Chapter
+          </UButton>
+        </div>
+      </div>
+      <div>
+        <ul
+          v-auto-animate
+          class="mt-2"
+        >
+          <li
+            v-for="(item, index) in chapters"
+            :key="index"
+            class="flex gap-2 mb-2"
+          >
+            <UInput
+              v-model="item.time"
+              class="w-[5rem]"
+            />
+            <UInput
+              v-model="item.title"
+              class="w-full"
+            />
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-2">
+      <h2 class="text-xl text-center">
+        result
+      </h2>
+      <div class="flex justify-end">
+        <UButton
+          class="mb-2"
+          :icon="copied ? 'heroicons:check-16-solid' : 'heroicons:clipboard-16-solid'"
+          @click="copy(clipboardText)"
+        >
+          Copy
+        </UButton>
+      </div>
+      <pre class="bg-gray-200 p-4">{{ clipboardText }}</pre>
     </div>
   </div>
 </template>
