@@ -1,0 +1,22 @@
+{
+  "name": "chapter-editor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "bun eslint . --cache",
+    "lint:fix": "bun lint --fix"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@nuxt/eslint": "^0.6.1",
+    "@nuxt/ui": "^2.19.2",
+    "@vueuse/nuxt": "^11.2.0",
+    "nuxt": "^3.14.159"
+  }
+}
