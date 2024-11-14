@@ -18,6 +18,14 @@ const handleFileChange = (files: FileList): void => {
   }
 }
 
+const dropInFile = (file: File) => {
+  const url = URL.createObjectURL(file)
+  if (videoElement.value) {
+    videoElement.value.src = url
+    volume.value = 0.5
+  }
+}
+
 const addAndSubTime = (time: number) => {
   currentTime.value += time
 }
@@ -165,6 +173,7 @@ const { copy, copied } = useClipboard()
       </div>
       <pre class="bg-gray-200 p-4">{{ clipboardText }}</pre>
     </div>
+    <DropzoneMask @selected="dropInFile" />
   </div>
 </template>
 
