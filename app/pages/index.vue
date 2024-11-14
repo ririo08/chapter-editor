@@ -47,6 +47,15 @@ const addChapter = () => {
   })
 }
 
+const onUpdateTime = (id: string) => {
+  const chapter = chapters.value.find(w => w.id === id)!
+  chapter.time = formatDuration(currentTime.value)
+}
+
+const onDeleteChapter = (id: string) => {
+  chapters.value.splice(chapters.value.findIndex(w => w.id === id), 1)
+}
+
 const clipboardText: Ref<string> = computed(() => {
   return chapters.value.map(m => `${m.time} ${m.title}`).join('\n')
 })
@@ -149,8 +158,8 @@ const { copy, copied } = useClipboard()
           class="mt-2"
         >
           <li
-            v-for="(item, index) in chapters"
-            :key="index"
+            v-for="item in chapters"
+            :key="item.id"
             class="flex gap-2 mb-2"
           >
             <UInput
@@ -159,7 +168,16 @@ const { copy, copied } = useClipboard()
             />
             <UInput
               v-model="item.title"
-              class="w-full"
+              class="flex-1"
+            />
+            <UButton
+              icon="heroicons:arrow-path-16-solid"
+              @click="onUpdateTime(item.id)"
+            />
+            <UButton
+              color="red"
+              icon="heroicons:trash-16-solid"
+              @click="onDeleteChapter(item.id)"
             />
           </li>
         </ul>
