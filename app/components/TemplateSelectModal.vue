@@ -14,10 +14,10 @@ const { saves } = useSaves()
 
 const name = ref('')
 const onSaveChapter = () => {
-  saves.value.push({
+  saves.value.push(cloneDeep({
     name: name.value,
     chapters: props.chapters,
-  })
+  }))
 }
 
 const onDeleteChapter = (index: number) => {
@@ -25,7 +25,7 @@ const onDeleteChapter = (index: number) => {
 }
 
 const onSelectChapterTemplate = (index: number) => {
-  emits('selected', saves.value[index]!.chapters!)
+  emits('selected', cloneDeep(saves.value[index]!.chapters!))
   isOpen.value = false
 }
 
