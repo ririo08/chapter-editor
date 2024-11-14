@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { vAutoAnimate } from '@formkit/auto-animate'
+import { ulid } from 'ulid'
 
 const { version } = useVersion()
 const { formatDuration } = useDuration()
@@ -34,15 +35,13 @@ const handlePause = (play: boolean) => {
   playing.value = !play
 }
 
-type Chapter = {
-  time: string
-  title: string
-}
 const chapters: Ref<Chapter[]> = ref([
-  { time: '0:00', title: '' },
+  { id: ulid(), time: '0:00', title: '' },
 ])
+
 const addChapter = () => {
   chapters.value.push({
+    id: ulid(),
     time: formatDuration(currentTime.value),
     title: '',
   })
@@ -66,13 +65,22 @@ const { copy, copied } = useClipboard()
       >ver {{ version }}</a>
     </div>
 
-    <UInput
-      type="file"
-      accept="video/*"
-      icon="i-heroicons-folder"
-      class="my-2"
-      @change="handleFileChange"
-    />
+    <section class="flex gap-2 my-2">
+      <div class="flex-1">
+        <UInput
+          type="file"
+          accept="video/*"
+          icon="i-heroicons-folder"
+          @change="handleFileChange"
+        />
+      </div>
+      <div class="flex-none">
+        <TemplateSelectModal
+          :chapters="chapters"
+          @selected="chapters = $event"
+        />
+      </div>
+    </section>
 
     <div class="grid grid-cols-2 gap-2">
       <div>
